@@ -42,8 +42,8 @@ cx = msg.P[2]
 cy = msg.P[6]
 
 def main():
-    useHSV   = False
-    useDepth = False
+    useHSV   = True
+    useDepth = True
     if not useHSV:
         # Task 1
         # subscribe to image
@@ -59,6 +59,7 @@ def main():
             image_sub = message_filters.Subscriber("/camera/rgb/image_rect_color", Image)
             #depth_sub = message_filters.Subscriber("/camera/depth_registered/image_raw", Image)    #Asus Xtion
             depth_sub = message_filters.Subscriber("/camera/depth_registered/sw_registered/image_rect", Image)  #/camera/depth_registered/sw_registered/image_rect #Realsense
+            depth_sub = message_filters.Subscriber("/camera/depth/image", Image)
             ts = message_filters.ApproximateTimeSynchronizer([image_sub, depth_sub], 10, 0.5)
             ts.registerCallback(rosRGBDCallBack)
 
@@ -81,7 +82,7 @@ def rosImageVizCallback(msg):
 
 # Task 1 callback for mouse event
 def cvWindowMouseCallBackFunc(event, xp, yp, flags, param):
-    print 'In cvWindowMouseCallBackFunc: (xp, yp)=', xp, yp  # xp, yp is the mouse location in the window
+    #print 'In cvWindowMouseCallBackFunc: (xp, yp)=', xp, yp  # xp, yp is the mouse location in the window
     # 1. Set the object to 2 meters away from camera
     zc = 2.0
     # 2. Visualize the pyramid
@@ -149,6 +150,7 @@ def HSVObjectDetection(cv_image, toPrint = True):
 
 # Task 3 callback
 def rosRGBDCallBack(rgb_data, depth_data):
+    print "enter RGBD"
     try:
         cv_image = cv_bridge.imgmsg_to_cv2(rgb_data, "bgr8")
         cv_depthimage = cv_bridge.imgmsg_to_cv2(depth_data, "32FC1")
@@ -189,6 +191,40 @@ def getXYZ(xp, yp, zc, fx,fy,cx,cy):
     # x = ??
     # y = ??
     # z = ??
+
+#'''
+    xa = float((zc/float(fx)))*(xp - cx)
+    ya = float((zc/float(fy)))*(yp - cy)
+    za = zc
+
+    x = za
+    y = -xa
+    z = -ya
+
+    #print "X=", x
+    #print "Y=", y
+    #print "Z=", z
+
+    print "X=", xp
+    print "Y=", yp
+    print "Z=", zc 
+
+    print "fx:", fx
+    print "fy:", fy
+
+    print "cx:", cx
+    print "cy:", cy
+
+    print "X=", x
+    print "Y=", y
+    print "Z=", z
+
+    '''
+    x = xp
+    y = yp
+    z = zc
+    '''
+
     return (x,y,z)
 
 
